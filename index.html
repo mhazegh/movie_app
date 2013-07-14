@@ -11,8 +11,51 @@
     <script src="https://d396qusza40orc.cloudfront.net/startup%2Fcode%2Fbootstrap.js"></script>
     <script>
       $(document).ready(function(){
-        $.getJSON("web.js",function(result){
-          alert("HELLO");
+        $.getJSON("movie_data.json", function(data){
+          // Generate a list of actors.
+          var actors = []
+          for(key in data){
+            for(i in data[key].actors){
+              if(actors.indexOf(data[key].actors[i]) == -1){
+                actors.push(data[key].actors[i]);
+              }
+            }
+          }
+          // Setup typeahead for actors.
+          $("#actor_field").typeahead({source:actors, items:4});
+          // Handle genre_btn click.
+          $("#genre_btn").click(function(){
+            var genre = $("#genre_field").val();
+            $("ul").empty();
+            var movies = [];
+            $.each(data, function(key, value) {
+              if(value.genres.indexOf(genre) >=0){
+                movies.push({title:key, critics_score:value.critics_score});
+              }
+            });
+            movies.sort(function(x,y){return x.critics_score - y.critics_score}).reverse();
+            for(i in movies){
+              $("ul").append('<li>'+movies[i].title+' | '+movies[i].critics_score+'</li>');
+            }
+            $("#sortby").text(genre);
+          });
+          // Handle actor_btn click.
+          $("#actor_btn").click(function(){
+            var actor = $("#actor_field").val();
+            $("ul").empty();
+            var movies = [];
+            $.each(data, function(key, value) {
+              if(value.actors.indexOf(actor) > -1){
+                movies.push({title:key, critics_score:value.critics_score});
+              }
+            });
+            movies.sort(function(x,y){return x.critics_score - y.critics_score}).reverse();
+            for(i in movies){
+              $("ul").append('<li>'+movies[i].title+' | '+movies[i].critics_score+'</li>');
+            }
+            $("#sortby").text(actor);
+            $("#actor_field").val("");
+          });
         });
       });
     </script>
@@ -25,23 +68,6 @@
         body {
           padding-top: 60px;
         }
-        .linediv-l {
-          border-right: 1px white solid;
-        }
-        .linediv-r {
-          border-left: 1px white solid;
-        }
-      }
-      @media (max-width: 480px) {
-        .copy {
-          padding: 2.5% 10%;
-        }
-        .linediv-l {
-          border-bottom: 1px white solid;
-        }
-        .linediv-r {
-          border-top: 1px white solid;
-        }
       }
       body {
         font-family: 'Open Sans', Helvetica, Arial, sans-serif;
@@ -49,6 +75,9 @@
       .heading, .subheading {
         font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
         text-align: center;
+      }
+      li {
+        margin-top: 2%;
       }
       p.lead {
         padding-top: 1.5%;
@@ -58,27 +87,6 @@
       p {
         font-size: 18px;
         line-height: 24px;
-      }
-      .pitch {
-        padding: 2.5% 0%;
-      }
-      .order {
-        padding: 2% 0%;
-      }
-      .actions {
-        background-color: #343434;
-        padding: 3% 0%;
-      }
-      .video, .thermometer, .order, .social, .statistics {
-        text-align: center;
-      }
-      .statistics h3, .statistics p {
-        color: white;
-      }
-      .copy {
-        padding-top: 2.5%;
-        padding-bottom: 2.5%; 
-        text-align: justify;
       }
       .asset {
         padding: 2.5% 0%;
@@ -92,6 +100,14 @@
       }
       .footer a {
         color: #ccccff;
+      }
+      .results {
+        list-style-type: none;
+        font-size: 16px;
+        font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
+      }
+      #sortby{
+        font-size: 18px;
       }
     </style>
   </head>
@@ -128,14 +144,12 @@
 
         <div class="span5 offset1 asset">
           <label>Search by actor</label>
-          <input type="text" placeholder="Who do you want to see?" id="actor_field">
+          <input type="text" data-provide="typeahead" placeholder="Who do you want to see?" id="actor_field">
           <button class="btn btn-success btn-large" id="actor_btn">Shazaam</button>
         </div>
         <div class="span5 offset1 asset">
-          <ul class="nav">
-            <li>A</li>
-            <li>B</li>
-            <li>C</li>
+          <label id='sortby'></label>
+          <ul class="results">
           </ul>
         </div>
       </div>
