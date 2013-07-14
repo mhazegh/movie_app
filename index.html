@@ -11,16 +11,8 @@
     <script src="https://d396qusza40orc.cloudfront.net/startup%2Fcode%2Fbootstrap.js"></script>
     <script>
       $(document).ready(function(){
-        $.get("index.html", function(data){
-          alert("Load performed.");
-        });
-        $("#genre_btn").click(function(){
-          var genre = $("#genre_field").val();
-          $("ul").empty();
-        });
-        $("#actor_btn").click(function(){
-          var actor = $("#actor_field").val();
-          $("ul").empty();
+        $.getJSON("web.js",function(result){
+          alert("HELLO");
         });
       });
     </script>
