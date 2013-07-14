@@ -53,5 +53,11 @@ p {
 .right {
   float: right;
 }
+.sort_options{
+  font-size:14px;
+  font-weight:normal;
+  line-height:22px;
+}
+#sortby{
   font-size: 18px;
 }

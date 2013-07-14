@@ -2,6 +2,7 @@ $(document).ready(function(){
   //On load reset fields.
   $("#genre_field").prop('selectedIndex',0);
   $("#actor_field").val("");
+  $("#similar_field").val("");
   $.getJSON("movie_data.json", function(data){
     // Generate a list of actors.
     var actors = []
@@ -14,10 +15,18 @@ $(document).ready(function(){
     }
     // Setup typeahead for actors.
     $("#actor_field").typeahead({source:actors, items:4});
+    // Generate a list of movies.
+    var all_movies = []
+    for (key in data){
+        all_movies.push(key);
+    } 
+    // Setup typeahead for movies.
+    $("#similar_field").typeahead({source:all_movies, items:4});
     // Handle genre_btn click.
     $("#genre_btn").click(function(){
-      var genre = $("#genre_field").val();
       $("ul").empty();
+      $("#sortby").text("");
+      var genre = $("#genre_field").val();
       var movies = [];
       $.each(data, function(key, value) {
         if(value.genres.indexOf(genre) >=0){
@@ -26,14 +35,15 @@ $(document).ready(function(){
       });
       movies.sort(function(x,y){return x.critics_score - y.critics_score}).reverse();
       for(i in movies){
-        $("ul").append('<li><a href="'+data[movies[i].title].rt_link+'" target="_blank">'+data[movies[i].title].title+'</a><span class="right">'+movies[i].critics_score+'</span></li>');
+        $("ul").append('<li><a href="'+data[movies[i].title].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span></li>');
       }
       $("#sortby").text(genre);
     });
     // Handle actor_btn click.
     $("#actor_btn").click(function(){
-      var actor = $("#actor_field").val();
       $("ul").empty();
+      $("#sortby").text("");
+      var actor = $("#actor_field").val();
       var movies = [];
       $.each(data, function(key, value) {
         if(value.actors.indexOf(actor) > -1){
@@ -42,10 +52,30 @@ $(document).ready(function(){
       });
       movies.sort(function(x,y){return x.critics_score - y.critics_score}).reverse();
       for(i in movies){
-        $("ul").append('<li><a href="'+data[movies[i].title].rt_link+'" target="_blank">'+data[movies[i].title].title+'</a><span class="right">'+movies[i].critics_score+'</span></li>');
+        $("ul").append('<li><a href="'+data[movies[i].title].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span></li>');
       }
       $("#sortby").text(actor);
       $("#actor_field").val("");
+    });
+    // Handle similer_btn click.
+    $("#similar_btn").click(function(){
+      $("ul").empty();
+      $("#sortby").text("");
+      var movie = $("#similar_field").val();
+      var similar_movies = [];
+      for(i in data[movie].similar){
+        if(data[data[movie].similar[i]]){
+          similar_movies.push({title:data[movie].similar[i],critics_score:data[data[movie].similar[i]].critics_score});
+        }
+      }
+      // Sort the similar movies.
+      similar_movies.sort(function(x,y){return x.critics_score - y.critics_score}).reverse();
+      for(i in similar_movies){
+        $("ul").append('<li><a href="'+data[similar_movies[i].title].rt_link+'" target="_blank">'+similar_movies[i].title+'</a><span class="right">'+similar_movies[i].critics_score+'</span></li>');
+      }
+      $("#sortby").text(movie);
+      $("#similar_field").val("");
+
     });
   });
 });
