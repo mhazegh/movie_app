@@ -12,8 +12,12 @@
     <script>
       $(document).ready(function(){
         $("#genre_btn").click(function(){
-          $.get("../data/movie_data.json").success(function(data){
-            alert("HERE");
+          $.ajax({
+            url:"movie_data.json",
+            dataType:"json",
+            success:function(data){
+              alert("SUCCESS");
+            }
           });
           var genre = $("#genre_field").val();
           $("ul").empty();
