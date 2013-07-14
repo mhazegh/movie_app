@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>My First Bitstarter</title>
+    <title>Show me the movie!</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://d396qusza40orc.cloudfront.net/startup%2Fcode%2Fbootstrap-combined.no-icons.min.css">
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css">
@@ -11,6 +11,9 @@
     <script src="https://d396qusza40orc.cloudfront.net/startup%2Fcode%2Fbootstrap.js"></script>
     <script>
       $(document).ready(function(){
+        //On load reset fields.
+        $("#genre_field").prop('selectedIndex',0);
+        $("#actor_field").val("");
         $.getJSON("movie_data.json", function(data){
           // Generate a list of actors.
           var actors = []
@@ -35,7 +38,7 @@
             });
             movies.sort(function(x,y){return x.critics_score - y.critics_score}).reverse();
             for(i in movies){
-              $("ul").append('<li>'+movies[i].title+' | '+movies[i].critics_score+'</li>');
+              $("ul").append('<li>'+movies[i].title+'<span class="right">'+movies[i].critics_score+'</span></li>');
             }
             $("#sortby").text(genre);
           });
@@ -51,7 +54,7 @@
             });
             movies.sort(function(x,y){return x.critics_score - y.critics_score}).reverse();
             for(i in movies){
-              $("ul").append('<li>'+movies[i].title+' | '+movies[i].critics_score+'</li>');
+              $("ul").append('<li>'+movies[i].title+'<span class="right">'+movies[i].critics_score+'</span></li>');
             }
             $("#sortby").text(actor);
             $("#actor_field").val("");
@@ -71,6 +74,8 @@
       }
       body {
         font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+        background-color:#383838;
+        color:white;
       }
       .heading, .subheading {
         font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
@@ -78,6 +83,7 @@
       }
       li {
         margin-top: 2%;
+        border-bottom: 1px solid #ccc
       }
       p.lead {
         padding-top: 1.5%;
@@ -105,6 +111,9 @@
         list-style-type: none;
         font-size: 16px;
         font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
+      }
+      .right {
+        float: right;
       }
       #sortby{
         font-size: 18px;
@@ -139,15 +148,15 @@
             <option>Romance</option>
             <option>Science Fiction & Fantasy</option>
           </select>
-          <button class="btn btn-success btn-large" id="genre_btn">Boo-yah</button>
+          <button class="btn btn-success btn-large" id="genre_btn">Booyah</button>
         </div>      
 
         <div class="span5 offset1 asset">
           <label>Search by actor</label>
           <input type="text" data-provide="typeahead" placeholder="Who do you want to see?" id="actor_field">
-          <button class="btn btn-success btn-large" id="actor_btn">Shazaam</button>
+          <button class="btn btn-success btn-large" id="actor_btn">Kazaam</button>
         </div>
-        <div class="span5 offset1 asset">
+        <div class="span9 offset1 asset">
           <label id='sortby'></label>
           <ul class="results">
           </ul>
