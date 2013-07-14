@@ -14,7 +14,7 @@ body {
 }
 li {
   margin-top: 2%;
-  border-bottom: 1px solid #ccc
+  //border-bottom: 1px solid #ccc;
 }
 p.lead {
   padding-top: 1.5%;

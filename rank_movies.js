@@ -1,8 +1,19 @@
 $(document).ready(function(){
-  //On load reset fields.
+  // On load reset fields.
   $("#genre_field").prop('selectedIndex',0);
   $("#actor_field").val("");
   $("#similar_field").val("");
+
+  // Define function to format progress bar.
+  var create_bar = function(score){
+    if (score == -1){
+      score = 0;
+    } 
+    return ('<div class="progress" style="height:2px;">'+
+           '<div class="bar bar-danger" style="width: '+score+'%;height: 2px;"></div>'+
+           '<div class="bar bar-warning" style="width: '+(100-score)+'%;height: 2px;"></div>'+
+           '</div>');
+  };
   $.getJSON("movie_data.json", function(data){
     // Generate a list of actors.
     var actors = []
@@ -36,6 +47,7 @@ $(document).ready(function(){
       movies.sort(function(x,y){return x.critics_score - y.critics_score}).reverse();
       for(i in movies){
         $("ul").append('<li><a href="'+data[movies[i].title].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span></li>');
+        $("ul").append(create_bar(movies[i].critics_score));
       }
       $("#sortby").text(genre);
     });
@@ -53,6 +65,7 @@ $(document).ready(function(){
       movies.sort(function(x,y){return x.critics_score - y.critics_score}).reverse();
       for(i in movies){
         $("ul").append('<li><a href="'+data[movies[i].title].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span></li>');
+        $("ul").append(create_bar(movies[i].critics_score));
       }
       $("#sortby").text(actor);
       $("#actor_field").val("");
@@ -72,6 +85,7 @@ $(document).ready(function(){
       similar_movies.sort(function(x,y){return x.critics_score - y.critics_score}).reverse();
       for(i in similar_movies){
         $("ul").append('<li><a href="'+data[similar_movies[i].title].rt_link+'" target="_blank">'+similar_movies[i].title+'</a><span class="right">'+similar_movies[i].critics_score+'</span></li>');
+        $("ul").append(create_bar(similar_movies[i].critics_score));
       }
       $("#sortby").text(movie);
       $("#similar_field").val("");
