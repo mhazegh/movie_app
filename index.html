@@ -8,12 +8,12 @@
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css">
     <script src="https://d396qusza40orc.cloudfront.net/startup%2Fcode%2Fjquery.js"></script>
     <script src="https://d396qusza40orc.cloudfront.net/startup%2Fcode%2Fbootstrap.js"></script>
-    <script src="/rank_movies.js"></script>
+    <script src="/js/rank_movies_new.js"></script>
     <link href="http://fonts.googleapis.com/css?family=Ubuntu:300,400,500,700,300italic,400italic,500italic,700italic"
           rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,300,400,600,700,800"
           rel="stylesheet" type="text/css">
-    <link rel="stylesheet" style type="text/css" href="/styles.css">
+    <link rel="stylesheet" style type="text/css" href="/css/styles.css">
   </head>
   <body>
     <div class="container">
@@ -31,18 +31,9 @@
         <div class="span3 offset1 asset">
           <div class="sort_options">Search by genre</div>
           <select id="genre_field">
-            <option>Action & Adventure</option>
-            <option>Animation</option>
-            <option>Comedy</option>
-            <option>Documentary</option>
-            <option>Drama</option>
-            <option>Horror</option>
-            <option>Mystery & Suspense</option>
-            <option>Romance</option>
-            <option>Science Fiction & Fantasy</option>
           </select>
           <button class="btn btn-success btn-large" id="genre_btn">Booyah</button>
-        </div>
+        </div>      
         <div class="span3 offset1 asset">
           <div class="sort_options">Search by actor</div>
           <input type="text" data-provide="typeahead" placeholder="Who do you want to see?" id="actor_field">
@@ -62,8 +53,6 @@
       <div class="row-fluid footer">
         <div class="span12">
           <p>
-            This work is licensed under the <a href="http://creativecommons.org/licenses/by-sa/3.0">CC By-SA 3.0</a>
-            , without all of the cruft that would otherwise be put at the bottom of the page.
           </p>
         </div>
       </div>
