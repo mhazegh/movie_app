@@ -33,28 +33,28 @@ $(document).ready(function(){
     });
     // Handle genre_btn click.
     $('#genre_btn').click(function(){
-        $("ul").empty();
+        $("#data").empty();
         $("#sortby").text("");
         var genre = $("#genre_field").val();
         $.get('/movies/genre/'+genre, function(movies){
             movies.sort(function(x,y){return x.critics_score - y.critics_score}).reverse();
             for(i in movies){
-                $("ul").append('<li><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span></li>');
-                $("ul").append(create_bar(movies[i].critics_score));
+                $("#data").append('<li><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span></li>');
+                $("#data").append(create_bar(movies[i].critics_score));
             }
             $("#sortby").text(genre);            
         });
     });
     // Handle actor_btn_click.
     $('#actor_btn').click(function(){
-        $("ul").empty();
+        $("#data").empty();
         $("#sortby").text("");
         var actor = $("#actor_field").val();
         $.get('/movies/actor/'+actor, function(movies){
             movies.sort(function(x,y){return x.critics_score - y.critics_score}).reverse();
             for(i in movies){
-                $("ul").append('<li><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span></li>');
-                $("ul").append(create_bar(movies[i].critics_score));
+                $("#data").append('<li><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span></li>');
+                $("#data").append(create_bar(movies[i].critics_score));
             }
             $("#sortby").text(actor);
             $("#actor_field").val("");          
@@ -62,14 +62,14 @@ $(document).ready(function(){
     });
     // Handle similar_btn click.
     $('#similar_btn').click(function(){
-        $("ul").empty();
+        $("#data").empty();
         $("#sortby").text("");
         var movie = $("#similar_field").val();
         $.get('/movies/similar/'+movie, function(movies){
             movies.sort(function(x,y){return x.critics_score - y.critics_score}).reverse();
             for(i in movies){
-                $("ul").append('<li><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span></li>');
-                $("ul").append(create_bar(movies[i].critics_score));
+                $("#data").append('<li><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span></li>');
+                $("#data").append(create_bar(movies[i].critics_score));
             }
             $("#sortby").text(movie);
             $("#similar_field").val("");          

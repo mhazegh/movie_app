@@ -38,6 +38,20 @@ p {
 .footer a {
   color: #ccccff;
 }
+
+.nav-pills a{
+  color: white;
+  font-size: 14pt;
+}
+
+.nav-pills > li > a:hover {
+  background-color:#62c462;
+}
+
+.navbar .brand{
+  font-size:18pt;
+  text-align:center;
+}
 .results {
   list-style-type: none;
   font-size: 16px;
