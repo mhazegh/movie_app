@@ -16,6 +16,9 @@ passport.deserializeUser(function(obj, done) {
   done(null, obj);
 });
 
+// Connect to the database and collection
+mongoose.connect('mongodb://localhost/movie_db/');
+
 // Use the GoogleStrategy within Passport.
 passport.use(new GoogleStrategy({
     returnURL: 'http://localhost:5000/auth/google/return',
@@ -24,13 +27,22 @@ passport.use(new GoogleStrategy({
   function(identifier, profile, done) {
     // asynchronous verification, for effect...
     process.nextTick(function () {
-      
-      // To keep the example simple, the user's Google profile is returned to
-      // represent the logged-in user.  In a typical application, you would want
-      // to associate the Google account with a user record in your database,
-      // and return that user instead.
-      profile.identifier = identifier;
-      return done(null, profile);
+      models.UserModel.findOne({'google_id':identifier},'-movies',function(err, user){
+        if(user){
+          return done(null,user)
+        }
+        else{
+          var new_user = new models.UserModel({
+            name:profile.displayName,
+            email:profile.emails[0].value,
+            google_id:identifier,
+          });
+          new_user.save(function(err) {
+            if (err) return handleError(err);
+            else return done(null,new_user);
+          });
+        }
+      });
     });
   }
 ));
@@ -76,16 +88,19 @@ app.get('/logout', function(req, res){
 
 function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) { return next(); }
-  res.redirect('/login')
+  res.redirect('/')
 }
-// Connect to the database and collection
-mongoose.connect('mongodb://localhost/movie_db/movies');
 
 // Get all information about a certian movie.
-app.get('/movies/title/:title', function(req, res){
-    return models.movie_model.find({'title':req.params.title}, function(err, movie){
+app.get('/movies/title/:title', ensureAuthenticated, function(req, res){
+    return models.UserModel.aggregate({$match:{google_id:req.user.google_id}},{$unwind:"$movies"},{$match:{"movies.title":req.params.title}},{$group:{_id:"movie_info",movie:{$addToSet:"$movies"}}}, function(err, data){
         if (!err){
-            return res.send(movie);
+            if(data.length > 0){
+                return res.send(data[0]['movie']);
+            }
+            else{
+                return res.send([]);
+            }
         } else {
             return console.log(err);
         }
@@ -93,10 +108,15 @@ app.get('/movies/title/:title', function(req, res){
 });
 
 // Get movies of a certian genre.
-app.get('/movies/genre/:genre', function(req, res){
-    return models.movie_model.find({'genres':req.params.genre}, function(err, movies){
+app.get('/movies/genre/:genre', ensureAuthenticated, function(req, res){
+    return models.UserModel.aggregate({$match:{google_id:req.user.google_id}}, {$unwind:"$movies"},{$match:{"movies.genres":req.params.genre}},{$group:{_id:"by_genre",movies:{$addToSet:"$movies"}}}, function(err, data){
         if (!err){
-            return res.send(movies);
+            if(data.length > 0){
+                return res.send(data[0]['movies']);
+            }
+            else{
+                return res.send([]);
+            }
         } else {
             return console.log(err);
         }
@@ -104,10 +124,15 @@ app.get('/movies/genre/:genre', function(req, res){
 });
 
 // Get movies which have a specific actor.
-app.get('/movies/actor/:actor', function(req, res){
-    return models.movie_model.find({'actors':req.params.actor}, function(err, movies){
+app.get('/movies/actor/:actor', ensureAuthenticated, function(req, res){
+    return models.UserModel.aggregate({$match:{google_id:req.user.google_id}},{$unwind:"$movies"},{$match:{"movies.actors":req.params.actor}},{$group:{_id:"by_actor",movies:{$addToSet:"$movies"}}}, function(err, data){
         if (!err){
-            return res.send(movies);
+            if(data.length > 0){
+                return res.send(data[0]['movies']);
+            }
+            else{
+                return res.send([]);
+            }
         } else {
             return console.log(err);
         }
@@ -115,10 +140,15 @@ app.get('/movies/actor/:actor', function(req, res){
 });
 
 // Get movies similar to passed in movie.
-app.get('/movies/similar/:movie', function(req, res){
-    return models.movie_model.find({'similar':req.params.movie}, function(err, movies){
+app.get('/movies/similar/:movie', ensureAuthenticated, function(req, res){
+    return models.UserModel.aggregate({$match:{google_id:req.user.google_id}},{$unwind:"$movies"},{$match:{"movies.similar":req.params.movie}},{$group:{_id:"by_similar",movies:{$addToSet:"$movies"}}}, function(err, data){
         if (!err){
-            return res.send(movies);
+            if(data.length > 0){
+                return res.send(data[0]['movies']);
+            }
+            else{
+                return res.send([]);
+            }
         } else {
             return console.log(err);
         }
@@ -126,10 +156,15 @@ app.get('/movies/similar/:movie', function(req, res){
 });
 
 // Get a list of distinct movie titles.
-app.get('/movies', function(req, res){
-    return models.movie_model.distinct('title', function(err, titles) {
-        if(!err){
-            return res.send(titles);
+app.get('/movies', ensureAuthenticated, function(req, res){
+    return models.UserModel.aggregate({$match:{google_id:req.user.google_id}}, {$project:{a:"$movies.title"}}, {$unwind:"$a"}, {$group:{_id:'distinct_movies', titles:{$addToSet:'$a'}}}, function(err, data) {
+        if (!err){
+            if(data.length > 0){
+                return res.send(data[0]['titles']);
+            }
+            else{
+                return res.send([]);
+            }
         } else {
             return console.log(err);
         }
@@ -137,10 +172,15 @@ app.get('/movies', function(req, res){
 });
 
 // Get a list of distinct genres.
-app.get('/genres', function(req, res){
-    return models.movie_model.distinct('genres', function(err, genres){
+app.get('/genres', ensureAuthenticated, function(req, res){
+    return models.UserModel.aggregate({$match:{google_id:req.user.google_id}}, {$project:{a:"$movies.genres"}}, {$unwind:"$a"}, {$unwind:"$a"}, {$group:{_id:'genres', genres:{$addToSet:'$a'}}}, function(err, data){
         if (!err){
-            return res.send(genres.sort());
+            if(data.length > 0){
+                return res.send(data[0]['genres']);
+            }
+            else{
+                return res.send([]);
+            }
         } else {
             return console.log(err);
         }
@@ -148,10 +188,15 @@ app.get('/genres', function(req, res){
 });
 
 // Get a list of distinct actors.
-app.get('/actors', function(req, res){
-    return models.movie_model.distinct('actors', function(err, actors){
+app.get('/actors', ensureAuthenticated, function(req, res){
+    return models.UserModel.aggregate({$match:{google_id:req.user.google_id}}, {$project:{a:"$movies.actors"}}, {$unwind:"$a"}, {$unwind:"$a"}, {$group:{_id:'actors', actors:{$addToSet:'$a'}}}, function(err, data){
         if (!err){
-            return res.send(actors);
+            if(data.length > 0){
+                return res.send(data[0]['actors']);
+            }
+            else{
+                return res.send([]);
+            }
         } else {
             return console.log(err);
         }

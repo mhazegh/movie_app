@@ -19,6 +19,7 @@ $(document).ready(function(){
     reset();
     // Populate the genres dropdown.
     $.get('/genres', function(genres){
+        genres.sort();
         for(i in genres) {
             $('select').append('<option>'+genres[i]+'</option>');
         }

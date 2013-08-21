@@ -1,17 +1,25 @@
 var mongoose = require('mongoose');
 
-// Define a movie schema
 var Schema = mongoose.Schema;
-var Movie = new Schema({
-    title: String,
-    id: Number,
-    genres: [String],
-    actors: [String],
-    similar: [String],
-    critics_score: Number,
-    audience_score: Number,
-    rt_link: String
+
+var MovieSchema = new Schema({
+     title: String,
+     id: Number,
+     genres: [String],
+     actors: [String],
+     similar: [String],
+     critics_score: Number,
+     audience_score: Number,
+     rt_link: String
+
 });
 
-var MovieModel = mongoose.model('Movie', Movie);
-exports.movie_model = MovieModel;
+var UserSchema = new Schema({
+    name: String,
+    email: String,
+    google_id: String,
+    movies: [MovieSchema]
+});
+
+var UserModel = mongoose.model('User', UserSchema);
+exports.UserModel = UserModel;
