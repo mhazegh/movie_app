@@ -27,7 +27,7 @@ passport.use(new GoogleStrategy({
   function(identifier, profile, done) {
     // asynchronous verification, for effect...
     process.nextTick(function () {
-      models.UserModel.findOne({'google_id':identifier},'-movies',function(err, user){
+      models.UserModel.findOne({'email':profile.emails[0].value},'-movies',function(err, user){
         if(user){
           return done(null,user)
         }
@@ -93,7 +93,7 @@ function ensureAuthenticated(req, res, next) {
 
 // Get all information about a certian movie.
 app.get('/movies/title/:title', ensureAuthenticated, function(req, res){
-    return models.UserModel.aggregate({$match:{google_id:req.user.google_id}},{$unwind:"$movies"},{$match:{"movies.title":req.params.title}},{$group:{_id:"movie_info",movie:{$addToSet:"$movies"}}}, function(err, data){
+    return models.UserModel.aggregate({$match:{email:req.user.email}},{$unwind:"$movies"},{$match:{"movies.title":req.params.title}},{$group:{_id:"movie_info",movie:{$addToSet:"$movies"}}}, function(err, data){
         if (!err){
             if(data.length > 0){
                 return res.send(data[0]['movie']);
@@ -109,7 +109,7 @@ app.get('/movies/title/:title', ensureAuthenticated, function(req, res){
 
 // Get movies of a certian genre.
 app.get('/movies/genre/:genre', ensureAuthenticated, function(req, res){
-    return models.UserModel.aggregate({$match:{google_id:req.user.google_id}}, {$unwind:"$movies"},{$match:{"movies.genres":req.params.genre}},{$group:{_id:"by_genre",movies:{$addToSet:"$movies"}}}, function(err, data){
+    return models.UserModel.aggregate({$match:{email:req.user.email}}, {$unwind:"$movies"},{$match:{"movies.genres":req.params.genre}},{$group:{_id:"by_genre",movies:{$addToSet:"$movies"}}}, function(err, data){
         if (!err){
             if(data.length > 0){
                 return res.send(data[0]['movies']);
@@ -125,7 +125,7 @@ app.get('/movies/genre/:genre', ensureAuthenticated, function(req, res){
 
 // Get movies which have a specific actor.
 app.get('/movies/actor/:actor', ensureAuthenticated, function(req, res){
-    return models.UserModel.aggregate({$match:{google_id:req.user.google_id}},{$unwind:"$movies"},{$match:{"movies.actors":req.params.actor}},{$group:{_id:"by_actor",movies:{$addToSet:"$movies"}}}, function(err, data){
+    return models.UserModel.aggregate({$match:{email:req.user.email}},{$unwind:"$movies"},{$match:{"movies.actors":req.params.actor}},{$group:{_id:"by_actor",movies:{$addToSet:"$movies"}}}, function(err, data){
         if (!err){
             if(data.length > 0){
                 return res.send(data[0]['movies']);
@@ -141,7 +141,7 @@ app.get('/movies/actor/:actor', ensureAuthenticated, function(req, res){
 
 // Get movies similar to passed in movie.
 app.get('/movies/similar/:movie', ensureAuthenticated, function(req, res){
-    return models.UserModel.aggregate({$match:{google_id:req.user.google_id}},{$unwind:"$movies"},{$match:{"movies.similar":req.params.movie}},{$group:{_id:"by_similar",movies:{$addToSet:"$movies"}}}, function(err, data){
+    return models.UserModel.aggregate({$match:{email:req.user.email}},{$unwind:"$movies"},{$match:{"movies.similar":req.params.movie}},{$group:{_id:"by_similar",movies:{$addToSet:"$movies"}}}, function(err, data){
         if (!err){
             if(data.length > 0){
                 return res.send(data[0]['movies']);
@@ -157,7 +157,7 @@ app.get('/movies/similar/:movie', ensureAuthenticated, function(req, res){
 
 // Get a list of distinct movie titles.
 app.get('/movies', ensureAuthenticated, function(req, res){
-    return models.UserModel.aggregate({$match:{google_id:req.user.google_id}}, {$project:{a:"$movies.title"}}, {$unwind:"$a"}, {$group:{_id:'distinct_movies', titles:{$addToSet:'$a'}}}, function(err, data) {
+    return models.UserModel.aggregate({$match:{email:req.user.email}}, {$project:{a:"$movies.title"}}, {$unwind:"$a"}, {$group:{_id:'distinct_movies', titles:{$addToSet:'$a'}}}, function(err, data) {
         if (!err){
             if(data.length > 0){
                 return res.send(data[0]['titles']);
@@ -173,7 +173,7 @@ app.get('/movies', ensureAuthenticated, function(req, res){
 
 // Get a list of distinct genres.
 app.get('/genres', ensureAuthenticated, function(req, res){
-    return models.UserModel.aggregate({$match:{google_id:req.user.google_id}}, {$project:{a:"$movies.genres"}}, {$unwind:"$a"}, {$unwind:"$a"}, {$group:{_id:'genres', genres:{$addToSet:'$a'}}}, function(err, data){
+    return models.UserModel.aggregate({$match:{email:req.user.email}}, {$project:{a:"$movies.genres"}}, {$unwind:"$a"}, {$unwind:"$a"}, {$group:{_id:'genres', genres:{$addToSet:'$a'}}}, function(err, data){
         if (!err){
             if(data.length > 0){
                 return res.send(data[0]['genres']);
@@ -189,7 +189,7 @@ app.get('/genres', ensureAuthenticated, function(req, res){
 
 // Get a list of distinct actors.
 app.get('/actors', ensureAuthenticated, function(req, res){
-    return models.UserModel.aggregate({$match:{google_id:req.user.google_id}}, {$project:{a:"$movies.actors"}}, {$unwind:"$a"}, {$unwind:"$a"}, {$group:{_id:'actors', actors:{$addToSet:'$a'}}}, function(err, data){
+    return models.UserModel.aggregate({$match:{email:req.user.email}}, {$project:{a:"$movies.actors"}}, {$unwind:"$a"}, {$unwind:"$a"}, {$group:{_id:'actors', actors:{$addToSet:'$a'}}}, function(err, data){
         if (!err){
             if(data.length > 0){
                 return res.send(data[0]['actors']);
