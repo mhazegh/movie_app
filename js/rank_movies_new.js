@@ -40,8 +40,7 @@ $(document).ready(function(){
         $.get('/movies/genre/'+genre, function(movies){
             movies.sort(function(x,y){return x.critics_score - y.critics_score}).reverse();
             for(i in movies){
-                $("#data").append('<tr><td><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span></td></tr>');
-                //$("#data").append(create_bar(movies[i].critics_score));
+                $('<tr><td><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span>'+create_bar(movies[i].critics_score) + "</td></tr>").appendTo("#data").children("tbody");
             }
             $("#sortby").text(genre);            
         });
@@ -54,8 +53,7 @@ $(document).ready(function(){
         $.get('/movies/actor/'+actor, function(movies){
             movies.sort(function(x,y){return x.critics_score - y.critics_score}).reverse();
             for(i in movies){
-                $("#data").append('<li><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span></li>');
-                $("#data").append(create_bar(movies[i].critics_score));
+                $('<tr><td><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span>'+create_bar(movies[i].critics_score) + "</td></tr>").appendTo("#data").children("tbody");
             }
             $("#sortby").text(actor);
             $("#actor_field").val("");          
@@ -69,8 +67,7 @@ $(document).ready(function(){
         $.get('/movies/similar/'+movie, function(movies){
             movies.sort(function(x,y){return x.critics_score - y.critics_score}).reverse();
             for(i in movies){
-                $("#data").append('<li><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span></li>');
-                $("#data").append(create_bar(movies[i].critics_score));
+                $('<tr><td><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span>'+create_bar(movies[i].critics_score) + "</td></tr>").appendTo("#data").children("tbody");
             }
             $("#sortby").text(movie);
             $("#similar_field").val("");          
