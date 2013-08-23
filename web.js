@@ -107,6 +107,22 @@ app.get('/movies/title/:title', ensureAuthenticated, function(req, res){
     });
 });
 
+// Get all information from a movie id.
+app.get('/movies/id/:id', ensureAuthenticated, function(req, res){
+    return models.UserModel.aggregate({$match:{email:req.user.email}},{$unwind:"$movies"},{$match:{"movies.id":parseInt(req.params.id)}},{$group:{_id:"movie_info",movie:{$addToSet:"$movies"}}}, function(err, data){
+        if (!err){
+            if(data.length > 0) {
+                return res.send(data[0]['movie']);
+            }
+            else {
+                return res.send([]);
+            }
+        } else {
+            return console.log(err);
+        }
+    });
+});
+
 // Get movies of a certian genre.
 app.get('/movies/genre/:genre', ensureAuthenticated, function(req, res){
     return models.UserModel.aggregate({$match:{email:req.user.email}}, {$unwind:"$movies"},{$match:{"movies.genres":req.params.genre}},{$group:{_id:"by_genre",movies:{$addToSet:"$movies"}}}, function(err, data){
@@ -197,6 +213,17 @@ app.get('/actors', ensureAuthenticated, function(req, res){
             else{
                 return res.send([]);
             }
+        } else {
+            return console.log(err);
+        }
+    });
+});
+
+// Save movie for user.
+app.post('/movies/new', ensureAuthenticated, function(req, res){
+     return models.UserModel.update({"email":req.user.email},{"$push":{movies:req.body}}, function(err, data){
+        if (!err){
+            return res.send("Success");
         } else {
             return console.log(err);
         }
