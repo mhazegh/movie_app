@@ -53,7 +53,6 @@ p {
   text-align:center;
 }
 .results {
-  list-style-type: none;
   font-size: 16px;
   font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
 }
@@ -63,6 +62,10 @@ p {
 .results a:hover{
  color: #0088cc;
  text-decoration: none;
+}
+
+.results td{
+  border:none;
 }
 .right {
   float: right;
@@ -74,4 +77,9 @@ p {
 }
 #sortby{
   font-size: 18px;
+}
+
+.table{
+  overflow:auto;
+  max-width:none;
 }

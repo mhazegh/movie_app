@@ -40,8 +40,8 @@ $(document).ready(function(){
         $.get('/movies/genre/'+genre, function(movies){
             movies.sort(function(x,y){return x.critics_score - y.critics_score}).reverse();
             for(i in movies){
-                $("#data").append('<li><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span></li>');
-                $("#data").append(create_bar(movies[i].critics_score));
+                $("#data").append('<tr><td><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span></td></tr>');
+                //$("#data").append(create_bar(movies[i].critics_score));
             }
             $("#sortby").text(genre);            
         });
