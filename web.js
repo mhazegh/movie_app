@@ -230,6 +230,17 @@ app.post('/movies/new', ensureAuthenticated, function(req, res){
     });
 });
 
+// Delete movie for user.
+app.post('/movies/delete', ensureAuthenticated, function(req, res){
+     return models.UserModel.update({"email":req.user.email},{"$pull":{'movies':{'title':req.body.title}}}, function(err, data){
+        if (!err){
+            return res.send("Success");
+        } else {
+            return console.log(err);
+        }
+    });
+});
+
 var port = process.env.PORT || 5000;
 app.listen(port, function() {
     console.log("Listening on " + port);
