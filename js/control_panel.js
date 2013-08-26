@@ -1,22 +1,46 @@
 $(document).ready(function(){
-    // Define function to reset fields.
-     $("#add_msg").hide();
+     $("#status_msg").hide();
     var apikey = "5xq9w7z2mp7a6cnchkfy52yd";
     var add_bar_pos = 0;
+    
+    // Function to reset fields.
     var reset = function(){
         $("#add_field").val("");
     };
+    
+    // Function to add a movie to the sorted movie table.
+    var add_to_table = function(title_to_add)
+    {
+       $('#movie_table tbody tr').each(function() {
+            var data = $(this).find('td:first-child').next();
+            var not_found = true;
+            data.each(function() {
+                if ($(this).html() >= title_to_add) {
+                    $(this).parent().before('<tr><td><input type="checkbox" value="1"/></td><td>'+title_to_add+'</td></tr>'); 
+                    not_found = false;
+                    return false;
+                }
+            });  
+            return not_found; 
+        }); 
+    };
+
+    // Gunction to add a movie to the database.
     var add_to_db = function(movie_obj)
     {
         $.ajax({
             type: 'POST',
             data: JSON.stringify(movie_obj),
             contentType: 'application/json',
-            url: 'http://localhost:5000/movies/new',	
+            url: 'http://192.241.196.211:5000/movies/new',	
             success: function(data) {
             }
         });
-        $("#add_msg").show().delay(2000).fadeOut();
+        $("#status_msg").text("'" + movie_obj.title + "'" + " added");
+        $("#status_msg").show().delay(2000).fadeOut();
+        // After a movie is added, update the movie table.
+        add_to_table(movie_obj.title);    
+        // Reset the movie field.
         reset();
     };
     reset();
@@ -25,13 +49,15 @@ $(document).ready(function(){
     $.get('/movies', function (titles){
         titles.sort();
         for (i in titles){
-            $('<tr><td>'+titles[i]+'</td><td><input type="checkbox" value="1"/></td></td></tr>').appendTo("#movie_table").children("tbody");
+            $('<tr><td><input type="checkbox" value="1"/></td><td>'+titles[i]+'</td></tr>').appendTo("#movie_table").children("tbody");
         }
     });
+
+    // Handle deleting movies.
     $("#delete_btn").click(function(){
         $('#movie_table input[type=checkbox]:checked').each(function() { 
             var row = $(this).parent().parent();
-            var rowcells = row.find('td:first-child');
+            var rowcells = row.find('td:first-child').next();
             rowcells.each(function() {
                 var to_remove = {
                     "title": $(this).html()
@@ -40,14 +66,18 @@ $(document).ready(function(){
                     type: 'POST',
                     data: JSON.stringify(to_remove),
                     contentType: 'application/json',
-                    url: 'http://localhost:5000/movies/delete',
+                    url: 'http://192.241.196.211:5000/movies/delete',
                     success: function(data) {
                     }
                 });
-                $(this).parent().fadeOut(500);
+                $(this).parent().fadeOut(500, function() {
+                    $(this).remove();
+                });
             });
         });
     }); 
+
+    // Handle adding movies.
     $('#add_btn').click(function(){
         var title = $("#add_field").val();
         $.ajax("http://api.rottentomatoes.com/api/public/v1.0/movies.json", {
@@ -58,6 +88,12 @@ $(document).ready(function(){
             },
             dataType:"jsonp",
             success: function(data){
+                if(data.total < 1) {
+                    $("#status_msg").text("Could not get data for " + "'" + title + '"');
+                    $("#status_msg").show().delay(2000).fadeOut();
+                    reset();
+                    return;
+                }
                 var movie_obj = {
                     "title" : data['movies'][0]['title'],
                     "id" : parseInt(data['movies'][0]['id']),
@@ -73,7 +109,8 @@ $(document).ready(function(){
                 }
                 $.get('/movies/id/'+movie_obj.id, function(data){
                     if(data.length > 0){
-                        alert("Movie already added.");
+                        $("#status_msg").text("'" + movie_obj.title + "'" + " already exists");
+                        $("#status_msg").show().delay(2000).fadeOut();
                         reset();
                     } else {
                         var calls_remaining = 2;
