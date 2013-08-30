@@ -4,7 +4,7 @@ $(document).ready(function(){
         $("#genre_field").prop('selectedIndex',0);
         $("#actor_field").val("");
         $("#similar_field").val("");
-    }
+    };
     // Define function to format progress bar.
     var create_bar = function(score){
       if (score == -1){
@@ -20,7 +20,7 @@ $(document).ready(function(){
     // Populate the genres dropdown.
     $.get('/genres', function(genres){
         genres.sort();
-        for(i in genres) {
+        for(var i in genres) {
             $('select').append('<option>'+genres[i]+'</option>');
         }
     });
@@ -38,8 +38,11 @@ $(document).ready(function(){
         $("#sortby").text("");
         var genre = $("#genre_field").val();
         $.get('/movies/genre/'+genre, function(movies){
-            movies.sort(function(x,y){return x.critics_score - y.critics_score}).reverse();
-            for(i in movies){
+            movies.sort(function(x,y){return x.critics_score - y.critics_score;}).reverse();
+            for(var i in movies){
+                if(movies[i].critics_score == -1) {
+                    movies[i].critics_score = 'n/a'
+                }
                 $('<tr><td><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span>'+create_bar(movies[i].critics_score) + "</td></tr>").appendTo("#data").children("tbody");
             }
             $("#sortby").text(genre);            
@@ -51,8 +54,11 @@ $(document).ready(function(){
         $("#sortby").text("");
         var actor = $("#actor_field").val();
         $.get('/movies/actor/'+actor, function(movies){
-            movies.sort(function(x,y){return x.critics_score - y.critics_score}).reverse();
-            for(i in movies){
+            movies.sort(function(x,y){return x.critics_score - y.critics_score;}).reverse();
+            for(var i in movies){
+                if(movies[i].critics_score == -1) {
+                    movies[i].critics_score = 'n/a'
+                }
                 $('<tr><td><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span>'+create_bar(movies[i].critics_score) + "</td></tr>").appendTo("#data").children("tbody");
             }
             $("#sortby").text(actor);
@@ -65,8 +71,11 @@ $(document).ready(function(){
         $("#sortby").text("");
         var movie = $("#similar_field").val();
         $.get('/movies/similar/'+movie, function(movies){
-            movies.sort(function(x,y){return x.critics_score - y.critics_score}).reverse();
-            for(i in movies){
+            movies.sort(function(x,y){return x.critics_score - y.critics_score;}).reverse();
+            for(var i in movies){
+                if(movies[i].critics_score == -1) {
+                    movies[i].critics_score = 'n/a'
+                }
                 $('<tr><td><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span>'+create_bar(movies[i].critics_score) + "</td></tr>").appendTo("#data").children("tbody");
             }
             $("#sortby").text(movie);

@@ -5,7 +5,8 @@ var express = require('express'),
     fs = require('fs'),
     passport = require('passport'),
     util = require('util'),
-    GoogleStrategy = require('passport-google').Strategy;
+    GoogleStrategy = require('passport-google').Strategy,
+    lazy = require('lazy');
 
 // Passport session setup.
 passport.serializeUser(function(user, done) {
@@ -223,7 +224,7 @@ app.get('/actors', ensureAuthenticated, function(req, res){
 app.post('/movies/new', ensureAuthenticated, function(req, res){
      return models.UserModel.update({"email":req.user.email},{"$push":{movies:req.body}}, function(err, data){
         if (!err){
-            return res.send("Success");
+            return res.send(JSON.stringify({response:"Success"}));
         } else {
             return console.log(err);
         }
@@ -234,7 +235,7 @@ app.post('/movies/new', ensureAuthenticated, function(req, res){
 app.post('/movies/delete', ensureAuthenticated, function(req, res){
      return models.UserModel.update({"email":req.user.email},{"$pull":{'movies':{'title':req.body.title}}}, function(err, data){
         if (!err){
-            return res.send("Success");
+            return res.send(JSON.stringify({response:"Success"}));
         } else {
             return console.log(err);
         }

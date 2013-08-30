@@ -10,7 +10,7 @@ $(document).ready(function(){
     // Function to add a movie to the sorted movie table.
     var add_to_table = function(title_to_add)
     {
-        if($('#movie_table tr').length == 0) {
+        if($('#movie_table tr').length === 0) {
             $('#movie_table').find('tbody').append('<tr><td><input type="checkbox" value="1"/></td><td>'+title_to_add+'</td></tr>');
             return;
        }
@@ -30,6 +30,7 @@ $(document).ready(function(){
         {
             $('#movie_table').find('tbody:last').append('<tr><td><input type="checkbox" value="1"/></td><td>'+title_to_add+'</td></tr>');
         } 
+        return;
     };
 
     // Function to add a movie to the database.
@@ -48,6 +49,7 @@ $(document).ready(function(){
             $(this).fadeTo(1000,0);
         });
 
+        console.log(movie_obj.title);
         // After a movie is added, update the movie table.
         add_to_table(movie_obj.title);    
         // Reset the movie field.
@@ -58,7 +60,7 @@ $(document).ready(function(){
     // Get all movies the user owns.
     $.get('/movies', function (titles){
         titles.sort();
-        for (i in titles){
+        for (var i in titles){
             $('<tr><td><input type="checkbox" value="1"/></td><td>'+titles[i]+'</td></tr>').appendTo("#movie_table").children("tbody");
         }
     });
@@ -85,9 +87,10 @@ $(document).ready(function(){
                 });
             });
         });
-    }); 
-    var add_movie = function() {
-        var title = $("#add_field").val();
+    });
+
+    var add_movie = function(title) {
+        console.log(title);
         $.ajax("http://api.rottentomatoes.com/api/public/v1.0/movies.json", {
             data: {
                 apikey: apikey,
@@ -105,17 +108,17 @@ $(document).ready(function(){
                     return;
                 }
                 var movie_obj = {
-                    "title" : data['movies'][0]['title'],
-                    "id" : parseInt(data['movies'][0]['id']),
-                    "critics_score" : data['movies'][0]['ratings']['critics_score'],
-                    "audience_score": data['movies'][0]['ratings']['audience_score'],
-                    "rt_link": data['movies'][0]['links']['alternate'],
+                    "title" : data.movies[0].title,
+                    "id" : parseInt(data.movies[0].id, 10),
+                    "critics_score" : data.movies[0].ratings.critics_score,
+                    "audience_score": data.movies[0].ratings.audience_score,
+                    "rt_link": data.movies[0].links.alternate,
                     "actors": [],
                     "genres": [],
                     "similar": []
                 };
-                for (i in data['movies'][0]['abridged_cast']){
-                    movie_obj['actors'].push(data['movies'][0]['abridged_cast'][i]['name']);
+                for (var i in data.movies[0].abridged_cast){
+                    movie_obj.actors.push(data.movies[0].abridged_cast[i].name);
                 }
                 $.get('/movies/id/'+movie_obj.id, function(data){
                     if(data.length > 0){
@@ -133,13 +136,13 @@ $(document).ready(function(){
                             },
                             dataType:"jsonp",
                             success: function(data){
-                                if (data['genres'].length > 0){
-                                    for(i in data['genres']){           
-                                        movie_obj['genres'].push(data['genres'][i]);
+                                if (data.genres.length > 0){
+                                    for(var i in data.genres){           
+                                        movie_obj.genres.push(data.genres[i]);
                                     }
                                 }
                                 --calls_remaining;
-                                if (calls_remaining == 0){
+                                if (calls_remaining === 0){
                                     add_to_db(movie_obj);
                                 }
                             }
@@ -151,13 +154,13 @@ $(document).ready(function(){
                             },
                             dataType:"jsonp",
                             success: function(data){
-                                if (data['movies'].length > 0){
-                                    for(i in data['movies']){           
-                                        movie_obj['similar'].push(data['movies'][i]['title']);
+                                if (data.movies.length > 0){
+                                    for(var i in data.movies){           
+                                        movie_obj.similar.push(data.movies[i].title);
                                     }
                                 }
                                 --calls_remaining;
-                                if (calls_remaining == 0){
+                                if (calls_remaining === 0){
                                     add_to_db(movie_obj);
                                 }
                             }
@@ -170,14 +173,37 @@ $(document).ready(function(){
 
     // Handle adding movies.
     $('#add_btn').click(function(){
-       add_movie();
+       add_movie($("#add_field").val());
     });
 
     $("#add_field").keypress(function(e){
-        if(e.which == 13)
-        {
-            add_movie();
+        if(e.which == 13) {
+            add_movie($("#add_field").val());
         }
     });
 
+    $('#upload_form').submit(function(event) {
+        event.preventDefault();
+        var file = document.getElementById('picked_file').files[0];
+        var reader = new FileReader();
+        reader.readAsText(file, 'UTF-8');
+        reader.onload = parseMovies;
+    });
+
+    function parseMovies(event) {
+        var result = event.target.result;
+        var movie_list = result.split("\n");
+        var wait_time = 0;
+        for (var i in movie_list) {
+            
+            if(movie_list[i].length > 0) {
+                timedAdd(movie_list[i], wait_time);
+            }
+            wait_time += 333;
+        }
+    }
+
+    function timedAdd(title, wait_time){
+        setTimeout(add_movie, wait_time, title);
+    }
 });
