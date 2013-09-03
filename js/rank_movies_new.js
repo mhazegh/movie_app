@@ -1,5 +1,6 @@
 $(document).ready(function(){
     // Define function to reset fields.
+    $('#help_div').hide();
     var reset = function(){
         $("#genre_field").prop('selectedIndex',0);
         $("#actor_field").val("");
@@ -31,22 +32,29 @@ $(document).ready(function(){
     // Populate the similar typeahead box.
     $.get('/movies', function(movies){
         $('#similar_field').typeahead({source:movies, items:4});
+        // If not movies exist, show a help message.
+        if(movies.length === 0) {
+            $('#help_div').show();
+            $('#help_msg').text('Looks like you don\'t have any movies! Click on \'Add/Remove Movies\' to get things started.');
+        }
     });
     // Handle genre_btn click.
     $('#genre_btn').click(function(){
         $("#data").empty();
         $("#sortby").text("");
         var genre = $("#genre_field").val();
-        $.get('/movies/genre/'+genre, function(movies){
-            movies.sort(function(x,y){return x.critics_score - y.critics_score;}).reverse();
-            for(var i in movies){
-                if(movies[i].critics_score == -1) {
-                    movies[i].critics_score = 'n/a'
+        if (genre != null) {
+            $.get('/movies/genre/'+genre, function(movies){
+                movies.sort(function(x,y){return x.critics_score - y.critics_score;}).reverse();
+                for(var i in movies){
+                    if(movies[i].critics_score == -1) {
+                        movies[i].critics_score = 'n/a'
+                    }
+                    $('<tr><td><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span>'+create_bar(movies[i].critics_score) + "</td></tr>").appendTo("#data").children("tbody");
                 }
-                $('<tr><td><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span>'+create_bar(movies[i].critics_score) + "</td></tr>").appendTo("#data").children("tbody");
-            }
-            $("#sortby").text(genre);            
-        });
+                $("#sortby").text(genre);            
+            });
+        }
     });
     // Handle actor_btn_click.
     $('#actor_btn').click(function(){
@@ -54,12 +62,16 @@ $(document).ready(function(){
         $("#sortby").text("");
         var actor = $("#actor_field").val();
         $.get('/movies/actor/'+actor, function(movies){
-            movies.sort(function(x,y){return x.critics_score - y.critics_score;}).reverse();
-            for(var i in movies){
-                if(movies[i].critics_score == -1) {
-                    movies[i].critics_score = 'n/a'
+            if(movies.length == 0) {
+                    $('<tr><td>No results found</td></tr>').appendTo("#data").children("tbody");
+            } else {
+                movies.sort(function(x,y){return x.critics_score - y.critics_score;}).reverse();
+                for(var i in movies){
+                    if(movies[i].critics_score == -1) {
+                        movies[i].critics_score = 'n/a'
+                    }
+                    $('<tr><td><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span>'+create_bar(movies[i].critics_score) + "</td></tr>").appendTo("#data").children("tbody");
                 }
-                $('<tr><td><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span>'+create_bar(movies[i].critics_score) + "</td></tr>").appendTo("#data").children("tbody");
             }
             $("#sortby").text(actor);
             $("#actor_field").val("");          
@@ -71,12 +83,17 @@ $(document).ready(function(){
         $("#sortby").text("");
         var movie = $("#similar_field").val();
         $.get('/movies/similar/'+movie, function(movies){
-            movies.sort(function(x,y){return x.critics_score - y.critics_score;}).reverse();
-            for(var i in movies){
-                if(movies[i].critics_score == -1) {
-                    movies[i].critics_score = 'n/a'
+            if(movies.length == 0) {
+                    $('<tr><td>No results found</td></tr>').appendTo("#data").children("tbody");
+            }
+            else {
+                movies.sort(function(x,y){return x.critics_score - y.critics_score;}).reverse();
+                for(var i in movies){
+                    if(movies[i].critics_score == -1) {
+                        movies[i].critics_score = 'n/a'
+                    }
+                    $('<tr><td><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span>'+create_bar(movies[i].critics_score) + "</td></tr>").appendTo("#data").children("tbody");
                 }
-                $('<tr><td><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span>'+create_bar(movies[i].critics_score) + "</td></tr>").appendTo("#data").children("tbody");
             }
             $("#sortby").text(movie);
             $("#similar_field").val("");          

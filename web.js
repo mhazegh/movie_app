@@ -5,8 +5,7 @@ var express = require('express'),
     fs = require('fs'),
     passport = require('passport'),
     util = require('util'),
-    GoogleStrategy = require('passport-google').Strategy,
-    lazy = require('lazy');
+    GoogleStrategy = require('passport-google').Strategy;
 
 // Passport session setup.
 passport.serializeUser(function(user, done) {
@@ -18,12 +17,12 @@ passport.deserializeUser(function(obj, done) {
 });
 
 // Connect to the database and collection
-mongoose.connect('mongodb://localhost/movie_db/');
+mongoose.connect('mongodb://192.241.196.211/movie_db/');
 
 // Use the GoogleStrategy within Passport.
 passport.use(new GoogleStrategy({
-    returnURL: 'http://localhost:5000/auth/google/return',
-    realm: 'http://localhost:5000/'
+    returnURL: 'http://www.choosingishard.com/auth/google/return',
+    realm: 'http://www.choosingishard.com/'
   },
   function(identifier, profile, done) {
     // asynchronous verification, for effect...
@@ -242,7 +241,7 @@ app.post('/movies/delete', ensureAuthenticated, function(req, res){
     });
 });
 
-var port = process.env.PORT || 5000;
+var port = process.env.PORT || 3000;
 app.listen(port, function() {
     console.log("Listening on " + port);
 });

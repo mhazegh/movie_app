@@ -7,6 +7,8 @@ $(document).ready(function(){
         $("#add_field").val("");
     };
     
+    reset();
+
     // Function to add a movie to the sorted movie table.
     var add_to_table = function(title_to_add)
     {
@@ -36,26 +38,27 @@ $(document).ready(function(){
     // Function to add a movie to the database.
     var add_to_db = function(movie_obj)
     {
-        $.ajax({
-            type: 'POST',
-            data: JSON.stringify(movie_obj),
-            contentType: 'application/json',
-            url: '/movies/new',	
-            success: function(data) {
+        $.get('/movies/id/'+movie_obj.id, function(data){
+            if(data.length === 0){
+                $.ajax({
+                    type: 'POST',
+                    data: JSON.stringify(movie_obj),
+                    contentType: 'application/json',
+                    url: '/movies/new',	
+                    success: function(data) {
+                    }
+                });
+                $("#status_msg").stop(true).text("'" + movie_obj.title + "'" + " added");
+                $("#status_msg").fadeTo(1500,1,function() {
+                    $(this).fadeTo(1000,0);
+                });
+                // After a movie is added, update the movie table.
+                add_to_table(movie_obj.title);    
             }
+            // Reset the movie field.
+            reset();
         });
-        $("#status_msg").stop(true).text("'" + movie_obj.title + "'" + " added");
-        $("#status_msg").fadeTo(1500,1,function() {
-            $(this).fadeTo(1000,0);
-        });
-
-        console.log(movie_obj.title);
-        // After a movie is added, update the movie table.
-        add_to_table(movie_obj.title);    
-        // Reset the movie field.
-        reset();
     };
-    reset();
     
     // Get all movies the user owns.
     $.get('/movies', function (titles){
@@ -195,9 +198,17 @@ $(document).ready(function(){
         var movie_list = result.split("\n");
         var wait_time = 0;
         for (var i in movie_list) {
-            
             if(movie_list[i].length > 0) {
-                timedAdd(movie_list[i], wait_time);
+                var cur_movie = movie_list[i].trim();
+                if(cur_movie.endsWith('.avi') || 
+                   cur_movie.endsWith('.mp4') || 
+                   cur_movie.endsWith('.mov') || 
+                   cur_movie.endsWith('.mpg') ||
+                   cur_movie.endsWith('.mkv') ||
+                   cur_movie.endsWith('.m4a')) {
+                    cur_movie = cur_movie.substr(0, cur_movie.length - 4);
+                }
+                timedAdd(cur_movie, wait_time);
             }
             wait_time += 333;
         }
@@ -206,4 +217,8 @@ $(document).ready(function(){
     function timedAdd(title, wait_time){
         setTimeout(add_movie, wait_time, title);
     }
+
+    $('#to_top_btn').click(function(){
+        $("html, body").animate({scrollTop:0},1000);
+    });
 });

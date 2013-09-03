@@ -38,16 +38,12 @@ p {
 .footer a {
   color: #ccccff;
 }
-
 .nav-pills a{
   color: white;
   font-size: 14pt;
 }
-
 .nav-pills > li > a:hover {
   background-color:#62c462;
-}
-
 .navbar .brand{
   font-size:18pt;
   text-align:center;
@@ -63,11 +59,9 @@ p {
  color: #0088cc;
  text-decoration: none;
 }
-
 .results td{
   border:none;
 }
-
 .right {
   float: right;
 }
@@ -79,7 +73,6 @@ p {
 #sortby{
   font-size: 18px;
 }
-
 .table{
   overflow:auto;
   max-width:none;
