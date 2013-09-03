@@ -3,7 +3,28 @@
     <div class='row-fluid'>
 	  <a href="/auth/google" class="btn btn-success btn-large span4 offset4">Sign in with Google</a>
     </div>
-    <div class='row-fluid'>
+    <br />
+    <div class="row-fluid">
+      <h3>Have a hard time choosing what to watch?</h3>
+      <p>You're at the right place! By creating an account you'll be able to automatically gather useful information about each movie in your collection. Hopefully it'll make choosing a little easier.</p>
+    </div>
+    <br/>
+    <div class="row-fluid">
+      <h3>Upload your list of your movie titles.</h3>
+      <p>We'll use this to get all kinds of useful information about the movies from Rotten Tomatoes. Don't worry, it's all done automatically.</p>
+      <br/>
+      <h3>Start exploring your collection!</h3>
+      <p>Sort your movies by genre.</p> 
+      <p>Search for movies your favorite actor has been in.</p>
+      <p>See which of your movies are similar to each other.</p>
+      <p>All of your movies will be ranked by their Rotten Tomatoes score, so you'll know what you're getting yourself into.</p>
+    </div>
+    <br/>
+    <div class="row-fluid">
+      <h3>Easily update your movies</h3>
+      <p>If your collection changes, you can upload another list of movies.</p>
+      <p>If you get a new movie, all you have to do is type in its title.</p> 
+      <p>Don't have a movie anymore? No problem, just delete it.</p>
     </div>
 <% } else { %>
     <!--If logged in, display the movies. -->
@@ -11,18 +32,18 @@
     <div class="row-fluid section1">
       <div class="span3 offset1 asset">
         <div class="sort_options">Search by genre</div>
-        <select id="genre_field"></select>
-        <button class="btn btn-success btn-large" id="genre_btn">Booyah</button>
+        <select type="select" id="genre_field"></select>
+        <button type="button" class="btn btn-success btn-large" id="genre_btn">Booyah</button>
       </div>      
       <div class="span3 offset1 asset">
         <div class="sort_options">Search by actor</div>
         <input type="text" data-provide="typeahead" placeholder="Who do you want to see?" id="actor_field">
-        <button class="btn btn-success btn-large" id="actor_btn">Kazaam</button>
+        <button type="button" class="btn btn-success btn-large" id="actor_btn">Kazaam</button>
       </div>
       <div class="span3 offset1 asset">
         <div class="sort_options">Similar to ...</div>
         <input type="text" data-provide="typeahead" placeholder="What movie do you like?" id="similar_field">
-        <button class="btn btn-success btn-large" id="similar_btn">Wagwan</button>
+        <button type="button" class="btn btn-success btn-large" id="similar_btn">Wagwan</button>
       </div>
       <br>
       <div class="row-fluid" id='help_div'>
