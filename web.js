@@ -17,12 +17,12 @@ passport.deserializeUser(function(obj, done) {
 });
 
 // Connect to the database and collection
-mongoose.connect('mongodb://192.241.196.211/movie_db/');
+mongoose.connect('mongodb://'+process.env.MONGO_URL+'/movie_db/');
 
 // Use the GoogleStrategy within Passport.
 passport.use(new GoogleStrategy({
-    returnURL: 'http://www.choosingishard.com/auth/google/return',
-    realm: 'http://www.choosingishard.com/'
+    returnURL: process.env.FULL_URL+'/auth/google/return',
+    realm: process.env.FULL_URL+'/'
   },
   function(identifier, profile, done) {
     // asynchronous verification, for effect...
@@ -241,7 +241,7 @@ app.post('/movies/delete', ensureAuthenticated, function(req, res){
     });
 });
 
-var port = process.env.PORT || 3000;
+var port = process.env.PORT;
 app.listen(port, function() {
     console.log("Listening on " + port);
 });
