@@ -280,8 +280,8 @@ app.get('/movies/count', ensureAuthenticated, function(req, res){
 });
 
 // Get the number of movies each actor has been in.
-app.get('/actors/count', ensureAuthenticated, function(req, res){
-    return models.UserModel.aggregate({$match:{email:req.user.email}}, {$project:{a:"$movies.actors"}}, {$unwind:"$a"}, {$unwind:"$a"}, {$group:{_id:"$a", count:{$sum: 1}}}, function(err, data){
+app.get('/actors/topten', ensureAuthenticated, function(req, res){
+    return models.UserModel.aggregate({$match:{email:req.user.email}}, {$project:{a:"$movies.actors"}}, {$unwind:"$a"}, {$unwind:"$a"}, {$group:{_id:"$a", count:{$sum:1}}}, {$sort:{count:-1}},{$limit:10}, function(err, data){
         if (!err){
             if(data.length > 0){
                 return res.send(data);

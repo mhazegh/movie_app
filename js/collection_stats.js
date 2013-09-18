@@ -21,22 +21,10 @@ $(document).ready(function(){
         }
     });
     // Get actor stats.
-    $.get('/actors/count', function(data){
-        data.sort(function(a,b){return parseFloat(a.count)-parseFloat(b.count)}).reverse();
-        $("#actor_stats").html("<p><b>"+data[0]._id+"</b> who's been in these <b>"+data[0].count+"</b> movies:</p>");
-        $.get('/movies/actor/'+data[0]._id, function(movies){
-            if(movies.length == 0) {
-                    $('<tr><td>No results found</td></tr>').appendTo("#data").children("tbody");
-            } else {
-                movies.sort(function(x,y){return x.critics_score - y.critics_score;}).reverse();
-                for(var i in movies){
-                    if(movies[i].critics_score == -1) {
-                        movies[i].critics_score = 'n/a'
-                    }
-                    $('<tr><td><a href="'+movies[i].rt_link+'" target="_blank">'+movies[i].title+'</a><span class="right">'+movies[i].critics_score+'</span>'+create_bar(movies[i].critics_score) + "</td></tr>").appendTo("#top_actor_data").children("tbody");
-                }
-            }
-        });
+    $.get('/actors/topten', function(data){
+        for(var i=0; i < 5; i++) {
+             $("#actor_stats").append("<p><b>"+data[i].count + " " + data[i]._id+"</b></p>");
+        }    
     });
     // Get highest rated movies.
     $.get('/movies/topten', function(data){
