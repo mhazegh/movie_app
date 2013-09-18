@@ -22,7 +22,7 @@ $(document).ready(function(){
     });
     // Get actor stats.
     $.get('/actors/topten', function(data){
-        for(var i=0; i < 5; i++) {
+        for(var i in data) {
              $("#actor_stats").append("<p><b>"+data[i].count + " " + data[i]._id+"</b></p>");
         }    
     });
