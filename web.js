@@ -69,6 +69,10 @@ app.get('/control_panel', ensureAuthenticated, function(req, res){
   res.render('control_panel', { user: req.user });
 });
 
+app.get('/collection_stats', ensureAuthenticated, function(req, res){
+  res.render('collection_stats', { user: req.user });
+});
+
 app.get('/auth/google', 
   passport.authenticate('google', { failureRedirect: '/login' }),
   function(req, res) {
@@ -96,7 +100,7 @@ app.get('/movies/title/:title', ensureAuthenticated, function(req, res){
     return models.UserModel.aggregate({$match:{email:req.user.email}},{$unwind:"$movies"},{$match:{"movies.title":req.params.title}},{$group:{_id:"movie_info",movie:{$addToSet:"$movies"}}}, function(err, data){
         if (!err){
             if(data.length > 0){
-                return res.send(data[0]['movie']);
+                return res.send(data[0].movie);
             }
             else{
                 return res.send([]);
@@ -112,7 +116,7 @@ app.get('/movies/id/:id', ensureAuthenticated, function(req, res){
     return models.UserModel.aggregate({$match:{email:req.user.email}},{$unwind:"$movies"},{$match:{"movies.id":parseInt(req.params.id)}},{$group:{_id:"movie_info",movie:{$addToSet:"$movies"}}}, function(err, data){
         if (!err){
             if(data.length > 0) {
-                return res.send(data[0]['movie']);
+                return res.send(data[0].movie);
             }
             else {
                 return res.send([]);
@@ -128,7 +132,7 @@ app.get('/movies/genre/:genre', ensureAuthenticated, function(req, res){
     return models.UserModel.aggregate({$match:{email:req.user.email}}, {$unwind:"$movies"},{$match:{"movies.genres":req.params.genre}},{$group:{_id:"by_genre",movies:{$addToSet:"$movies"}}}, function(err, data){
         if (!err){
             if(data.length > 0){
-                return res.send(data[0]['movies']);
+                return res.send(data[0].movies);
             }
             else{
                 return res.send([]);
@@ -144,7 +148,7 @@ app.get('/movies/actor/:actor', ensureAuthenticated, function(req, res){
     return models.UserModel.aggregate({$match:{email:req.user.email}},{$unwind:"$movies"},{$match:{"movies.actors":req.params.actor}},{$group:{_id:"by_actor",movies:{$addToSet:"$movies"}}}, function(err, data){
         if (!err){
             if(data.length > 0){
-                return res.send(data[0]['movies']);
+                return res.send(data[0].movies);
             }
             else{
                 return res.send([]);
@@ -160,7 +164,7 @@ app.get('/movies/similar/:movie', ensureAuthenticated, function(req, res){
     return models.UserModel.aggregate({$match:{email:req.user.email}},{$unwind:"$movies"},{$match:{"movies.similar":req.params.movie}},{$group:{_id:"by_similar",movies:{$addToSet:"$movies"}}}, function(err, data){
         if (!err){
             if(data.length > 0){
-                return res.send(data[0]['movies']);
+                return res.send(data[0].movies);
             }
             else{
                 return res.send([]);
@@ -176,7 +180,7 @@ app.get('/movies', ensureAuthenticated, function(req, res){
     return models.UserModel.aggregate({$match:{email:req.user.email}}, {$project:{a:"$movies.title"}}, {$unwind:"$a"}, {$group:{_id:'distinct_movies', titles:{$addToSet:'$a'}}}, function(err, data) {
         if (!err){
             if(data.length > 0){
-                return res.send(data[0]['titles']);
+                return res.send(data[0].titles);
             }
             else{
                 return res.send([]);
@@ -192,7 +196,7 @@ app.get('/genres', ensureAuthenticated, function(req, res){
     return models.UserModel.aggregate({$match:{email:req.user.email}}, {$project:{a:"$movies.genres"}}, {$unwind:"$a"}, {$unwind:"$a"}, {$group:{_id:'genres', genres:{$addToSet:'$a'}}}, function(err, data){
         if (!err){
             if(data.length > 0){
-                return res.send(data[0]['genres']);
+                return res.send(data[0].genres);
             }
             else{
                 return res.send([]);
@@ -208,7 +212,7 @@ app.get('/actors', ensureAuthenticated, function(req, res){
     return models.UserModel.aggregate({$match:{email:req.user.email}}, {$project:{a:"$movies.actors"}}, {$unwind:"$a"}, {$unwind:"$a"}, {$group:{_id:'actors', actors:{$addToSet:'$a'}}}, function(err, data){
         if (!err){
             if(data.length > 0){
-                return res.send(data[0]['actors']);
+                return res.send(data[0].actors);
             }
             else{
                 return res.send([]);
@@ -235,6 +239,71 @@ app.post('/movies/delete', ensureAuthenticated, function(req, res){
      return models.UserModel.update({"email":req.user.email},{"$pull":{'movies':{'title':req.body.title}}}, function(err, data){
         if (!err){
             return res.send(JSON.stringify({response:"Success"}));
+        } else {
+            return console.log(err);
+        }
+    });
+});
+
+// Calls for collection statistics.
+
+// Get the count of each genre.
+app.get('/genres/count', ensureAuthenticated, function(req, res){
+    return models.UserModel.aggregate({$match:{email:req.user.email}}, {$project:{a:"$movies.genres"}}, {$unwind:"$a"}, {$unwind:"$a"}, {$group:{_id:"$a", count:{$sum: 1}}}, function(err, data){
+        if (!err){
+            if(data.length > 0){
+                return res.send(data);
+            }
+            else{
+                return res.send([]);
+            }
+        } else {
+            return console.log(err);
+        }
+    });
+});
+
+// Get the total number of movies.
+app.get('/movies/count', ensureAuthenticated, function(req, res){
+    return models.UserModel.aggregate({$match:{email:req.user.email}}, {$unwind:"$movies"},{$project:{count:{$add:1}}}, {$group:{_id:null, count:{$sum:'$count'}}}, function(err, data){
+        if (!err){
+            if(data.length > 0){
+                return res.send(data);
+            }
+            else{
+                return res.send([]);
+            }
+        } else {
+            return console.log(err);
+        }
+    });
+});
+
+// Get the number of movies each actor has been in.
+app.get('/actors/count', ensureAuthenticated, function(req, res){
+    return models.UserModel.aggregate({$match:{email:req.user.email}}, {$project:{a:"$movies.actors"}}, {$unwind:"$a"}, {$unwind:"$a"}, {$group:{_id:"$a", count:{$sum: 1}}}, function(err, data){
+        if (!err){
+            if(data.length > 0){
+                return res.send(data);
+            }
+            else{
+                return res.send([]);
+            }
+        } else {
+            return console.log(err);
+        }
+    });
+});
+
+app.get('/movies/topten', ensureAuthenticated, function(req, res){
+    return models.UserModel.aggregate({$match:{email:req.user.email}}, {$project:{movie:"$movies"}}, {$unwind:"$movie"}, {$sort:{"movie.critics_score":-1}}, {$limit:10}, function(err,data){
+        if (!err){
+            if(data.length > 0){
+                return res.send(data);
+            }
+            else{
+                return res.send([]);
+            }
         } else {
             return console.log(err);
         }

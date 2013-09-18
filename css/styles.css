@@ -63,6 +63,13 @@ p {
 #sortby{
   font-size: 18px;
 }
+.stats{
+  text-align: left;
+}
+
+.stats_sect{
+  margin-top: 2%;
+}
 .table{
   overflow:auto;
   max-width:none;
