@@ -1,41 +1,49 @@
 <script src="/js/control_panel.js"></script>
 <div class="row-fluid">
-  <h4 class="span6 offset3">Add a movie from your collection</h4>
+  <h4 class="span8 offset2">Add a movie from your collection</h4>
   <div class="form-horizontal">
-    <input class="span6 offset3" id="add_field" type="text" placeholder="Enter movie title"/>
-    <button class="btn btn-success" id="add_btn">Add</button>
+    <input class="span8 offset2" id="add_field" type="text" placeholder="Enter movie title"/>
   </div>
   <div class="row-fluid">
-    <div class="span6 offset3" id="status_msg">
+    <button type="button" class="btn btn-success span8 offset2" id="add_btn">Add Movie</button>
+  </div>
+  <div class="row-fluid">
+    <div class="span8 offset2" id="status_msg">
     </div>
   </div>
-  <br/>
   <div class="row-fluid">
-    <h4 class="span6 offset3">Upload a list of movies</h4>
+    <h4 class="span8 offset2">Upload a list of movies</h4>
   </div>
-  <div class="row-fluid span6 offset3">
+  <div class="row-fluid span8 offset2">
     <form enctype="multipart/form-data" id="upload_form" method="POST" action="/movies/upload">
       <input name="movie_file" type="file" id="picked_file"/>
       <input type="submit" id="upload_btn"/>
     </form>
   </div>
+  <div class="row fluid span8 offset2">
+  Select a file that has the titles of your movies. Make sure each title is on its own line - there's no need to worry about file extensions.
+  </div>
   <br/>
   <div class="row-fluid">
-    <h4 class="span6 offset3">Your movies</h4>
+    <h4 class="span8 offset2">Your movies</h4>
   </div>
   <div class="row-fluid">
-    <div class="span6 offset3" style="max-height:405px;overflow:auto;">
+    <button type="button" class="btn btn-danger span8 offset2" id="delete_btn"><i class="icon-trash icon-white"></i> Delete Selected</button>
+  </div>
+  <div class="row-fluid">
+    <div class="span8 offset2" id="delete_msg">
+    </div>
+  </div>
+  <div class="row-fluid">
+    <div class="span8 offset2">
       <table class="table table-bordered" id="movie_table">
         <tbody>
         </tbody>
       </table>
     </div>
   </div>
-  <br/>
   <div class="row-fluid">
-    <div class="span6 offset3">
-      <button class="btn btn-danger" id="delete_btn"><i class="icon-trash icon-white"></i> Delete Selected</button>
-    </div>
+    <button type="button" class="btn btn-success span8 offset2" id="to_top_btn">Back to top</button>
   </div>
+  <div class="row-fluid">
 </div>
-

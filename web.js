@@ -5,8 +5,9 @@ var express = require('express'),
     fs = require('fs'),
     passport = require('passport'),
     util = require('util'),
-    GoogleStrategy = require('passport-google').Strategy,
-    lazy = require('lazy');
+    GoogleStrategy = require('passport-google').Strategy;
+
+var updates = {};
 
 // Passport session setup.
 passport.serializeUser(function(user, done) {
@@ -18,12 +19,12 @@ passport.deserializeUser(function(obj, done) {
 });
 
 // Connect to the database and collection
-mongoose.connect('mongodb://localhost/movie_db/');
+mongoose.connect('mongodb://'+process.env.MONGO_URL+'/movie_db/');
 
 // Use the GoogleStrategy within Passport.
 passport.use(new GoogleStrategy({
-    returnURL: 'http://localhost:5000/auth/google/return',
-    realm: 'http://localhost:5000/'
+    returnURL: process.env.FULL_URL+'/auth/google/return',
+    realm: process.env.FULL_URL+'/'
   },
   function(identifier, profile, done) {
     // asynchronous verification, for effect...
@@ -55,11 +56,11 @@ app.configure(function(){
     app.use(express.cookieParser());
     app.use(express.bodyParser());
     app.use(express.methodOverride());
-    app.use(express.session({ secret: 'keyboard cat' }));
+    app.use(express.session({ secret: process.env.SECRET }));
     app.use(passport.initialize());
     app.use(passport.session());
     app.use(app.router);
-    app.use('/', express.static(__dirname + '/'));
+    app.use('/css', express.static(__dirname + '/css'));
 });
 
 app.get('/', function(req, res) {
@@ -68,6 +69,10 @@ app.get('/', function(req, res) {
 
 app.get('/control_panel', ensureAuthenticated, function(req, res){
   res.render('control_panel', { user: req.user });
+});
+
+app.get('/collection_stats', ensureAuthenticated, function(req, res){
+  res.render('collection_stats', { user: req.user });
 });
 
 app.get('/auth/google', 
@@ -97,7 +102,7 @@ app.get('/movies/title/:title', ensureAuthenticated, function(req, res){
     return models.UserModel.aggregate({$match:{email:req.user.email}},{$unwind:"$movies"},{$match:{"movies.title":req.params.title}},{$group:{_id:"movie_info",movie:{$addToSet:"$movies"}}}, function(err, data){
         if (!err){
             if(data.length > 0){
-                return res.send(data[0]['movie']);
+                return res.send(data[0].movie);
             }
             else{
                 return res.send([]);
@@ -113,7 +118,7 @@ app.get('/movies/id/:id', ensureAuthenticated, function(req, res){
     return models.UserModel.aggregate({$match:{email:req.user.email}},{$unwind:"$movies"},{$match:{"movies.id":parseInt(req.params.id)}},{$group:{_id:"movie_info",movie:{$addToSet:"$movies"}}}, function(err, data){
         if (!err){
             if(data.length > 0) {
-                return res.send(data[0]['movie']);
+                return res.send(data[0].movie);
             }
             else {
                 return res.send([]);
@@ -129,7 +134,7 @@ app.get('/movies/genre/:genre', ensureAuthenticated, function(req, res){
     return models.UserModel.aggregate({$match:{email:req.user.email}}, {$unwind:"$movies"},{$match:{"movies.genres":req.params.genre}},{$group:{_id:"by_genre",movies:{$addToSet:"$movies"}}}, function(err, data){
         if (!err){
             if(data.length > 0){
-                return res.send(data[0]['movies']);
+                return res.send(data[0].movies);
             }
             else{
                 return res.send([]);
@@ -145,7 +150,7 @@ app.get('/movies/actor/:actor', ensureAuthenticated, function(req, res){
     return models.UserModel.aggregate({$match:{email:req.user.email}},{$unwind:"$movies"},{$match:{"movies.actors":req.params.actor}},{$group:{_id:"by_actor",movies:{$addToSet:"$movies"}}}, function(err, data){
         if (!err){
             if(data.length > 0){
-                return res.send(data[0]['movies']);
+                return res.send(data[0].movies);
             }
             else{
                 return res.send([]);
@@ -161,7 +166,7 @@ app.get('/movies/similar/:movie', ensureAuthenticated, function(req, res){
     return models.UserModel.aggregate({$match:{email:req.user.email}},{$unwind:"$movies"},{$match:{"movies.similar":req.params.movie}},{$group:{_id:"by_similar",movies:{$addToSet:"$movies"}}}, function(err, data){
         if (!err){
             if(data.length > 0){
-                return res.send(data[0]['movies']);
+                return res.send(data[0].movies);
             }
             else{
                 return res.send([]);
@@ -177,7 +182,7 @@ app.get('/movies', ensureAuthenticated, function(req, res){
     return models.UserModel.aggregate({$match:{email:req.user.email}}, {$project:{a:"$movies.title"}}, {$unwind:"$a"}, {$group:{_id:'distinct_movies', titles:{$addToSet:'$a'}}}, function(err, data) {
         if (!err){
             if(data.length > 0){
-                return res.send(data[0]['titles']);
+                return res.send(data[0].titles);
             }
             else{
                 return res.send([]);
@@ -193,7 +198,7 @@ app.get('/genres', ensureAuthenticated, function(req, res){
     return models.UserModel.aggregate({$match:{email:req.user.email}}, {$project:{a:"$movies.genres"}}, {$unwind:"$a"}, {$unwind:"$a"}, {$group:{_id:'genres', genres:{$addToSet:'$a'}}}, function(err, data){
         if (!err){
             if(data.length > 0){
-                return res.send(data[0]['genres']);
+                return res.send(data[0].genres);
             }
             else{
                 return res.send([]);
@@ -209,7 +214,7 @@ app.get('/actors', ensureAuthenticated, function(req, res){
     return models.UserModel.aggregate({$match:{email:req.user.email}}, {$project:{a:"$movies.actors"}}, {$unwind:"$a"}, {$unwind:"$a"}, {$group:{_id:'actors', actors:{$addToSet:'$a'}}}, function(err, data){
         if (!err){
             if(data.length > 0){
-                return res.send(data[0]['actors']);
+                return res.send(data[0].actors);
             }
             else{
                 return res.send([]);
@@ -242,7 +247,99 @@ app.post('/movies/delete', ensureAuthenticated, function(req, res){
     });
 });
 
-var port = process.env.PORT || 5000;
+// Test code for instagram idea.
+// When this is called, that means a new image has been uploaded.
+// Fetch the new image and make the URL available for query.
+app.post('/pi/frame', function(req, res) {
+    console.log('received data');
+    var object_id = req.body[0]['object_id'];
+    var time = req.body[0]['time'];
+    updates[object_id] = time;
+    console.log(updates);
+});
+
+app.get('/pi/frame', function(req, res) {
+    if ("hub.challenge" in req.query) {
+        console.log('Sending hub');
+        return res.send(req.query['hub.challenge']);
+    }
+    else {
+        console.log('Sending updates');
+        return res.send(updates);
+    }
+});
+
+app.get('/pi/frame_clear', function(req, res){
+    updates = {};
+    return res.send(JSON.stringify({response:"Success"}));
+});
+
+// Calls for collection statistics.
+
+// Get the count of each genre.
+app.get('/genres/count', ensureAuthenticated, function(req, res){
+    return models.UserModel.aggregate({$match:{email:req.user.email}}, {$project:{a:"$movies.genres"}}, {$unwind:"$a"}, {$unwind:"$a"}, {$group:{_id:"$a", count:{$sum: 1}}}, function(err, data){
+        if (!err){
+            if(data.length > 0){
+                return res.send(data);
+            }
+            else{
+                return res.send([]);
+            }
+        } else {
+            return console.log(err);
+        }
+    });
+});
+
+// Get the total number of movies.
+app.get('/movies/count', ensureAuthenticated, function(req, res){
+    return models.UserModel.aggregate({$match:{email:req.user.email}}, {$unwind:"$movies"},{$project:{count:{$add:1}}}, {$group:{_id:null, count:{$sum:'$count'}}}, function(err, data){
+        if (!err){
+            if(data.length > 0){
+                return res.send(data);
+            }
+            else{
+                return res.send([]);
+            }
+        } else {
+            return console.log(err);
+        }
+    });
+});
+
+// Get the number of movies each actor has been in.
+app.get('/actors/topten', ensureAuthenticated, function(req, res){
+    return models.UserModel.aggregate({$match:{email:req.user.email}}, {$project:{a:"$movies.actors"}}, {$unwind:"$a"}, {$unwind:"$a"}, {$group:{_id:"$a", count:{$sum:1}}}, {$sort:{count:-1}},{$limit:10}, function(err, data){
+        if (!err){
+            if(data.length > 0){
+                return res.send(data);
+            }
+            else{
+                return res.send([]);
+            }
+        } else {
+            return console.log(err);
+        }
+    });
+});
+
+app.get('/movies/topten', ensureAuthenticated, function(req, res){
+    return models.UserModel.aggregate({$match:{email:req.user.email}}, {$project:{movie:"$movies"}}, {$unwind:"$movie"}, {$sort:{"movie.critics_score":-1}}, {$limit:10}, function(err,data){
+        if (!err){
+            if(data.length > 0){
+                return res.send(data);
+            }
+            else{
+                return res.send([]);
+            }
+        } else {
+            return console.log(err);
+        }
+    });
+});
+
+var port = process.env.PORT;
 app.listen(port, function() {
     console.log("Listening on " + port);
 });
