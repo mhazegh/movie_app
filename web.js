@@ -5,13 +5,9 @@ var express = require('express'),
     fs = require('fs'),
     passport = require('passport'),
     util = require('util'),
-<<<<<<< HEAD
-    GoogleStrategy = require('passport-google').Strategy;
+    GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 
 var updates = {};
-=======
-    GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
->>>>>>> 11e653b2d87d45e7c2b146e43ba6e6cb11c725c7
 
 // Passport session setup.
 passport.serializeUser(function(user, done) {
@@ -27,14 +23,9 @@ mongoose.connect('mongodb://'+process.env.MONGO_URL+'/movie_db/');
 
 // Use the GoogleStrategy within Passport.
 passport.use(new GoogleStrategy({
-<<<<<<< HEAD
-    returnURL: process.env.FULL_URL+'/auth/google/return',
-    realm: process.env.FULL_URL+'/'
-=======
     clientID: '51436788764-oqqf3oft8vn40l156nfpjt1btk1p1qu0.apps.googleusercontent.com',
     clientSecret: 'mDTK6iO-k-imNsOH6kbmlV9y',
     callbackURL: process.env.FULL_URL+'/auth/google/return'
->>>>>>> 11e653b2d87d45e7c2b146e43ba6e6cb11c725c7
   },
   function(accessToken, refreshToken, profile, done) {
     // asynchronous verification, for effect...
@@ -258,36 +249,6 @@ app.post('/movies/delete', ensureAuthenticated, function(req, res){
     });
 });
 
-<<<<<<< HEAD
-// Test code for instagram idea.
-// When this is called, that means a new image has been uploaded.
-// Fetch the new image and make the URL available for query.
-app.post('/pi/frame', function(req, res) {
-    console.log('received data');
-    var object_id = req.body[0]['object_id'];
-    var time = req.body[0]['time'];
-    updates[object_id] = time;
-    console.log(updates);
-});
-
-app.get('/pi/frame', function(req, res) {
-    if ("hub.challenge" in req.query) {
-        console.log('Sending hub');
-        return res.send(req.query['hub.challenge']);
-    }
-    else {
-        console.log('Sending updates');
-        return res.send(updates);
-    }
-});
-
-app.get('/pi/frame_clear', function(req, res){
-    updates = {};
-    return res.send(JSON.stringify({response:"Success"}));
-});
-
-=======
->>>>>>> 11e653b2d87d45e7c2b146e43ba6e6cb11c725c7
 // Calls for collection statistics.
 
 // Get the count of each genre.
