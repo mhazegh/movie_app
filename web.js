@@ -5,9 +5,13 @@ var express = require('express'),
     fs = require('fs'),
     passport = require('passport'),
     util = require('util'),
+<<<<<<< HEAD
     GoogleStrategy = require('passport-google').Strategy;
 
 var updates = {};
+=======
+    GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+>>>>>>> 11e653b2d87d45e7c2b146e43ba6e6cb11c725c7
 
 // Passport session setup.
 passport.serializeUser(function(user, done) {
@@ -23,12 +27,19 @@ mongoose.connect('mongodb://'+process.env.MONGO_URL+'/movie_db/');
 
 // Use the GoogleStrategy within Passport.
 passport.use(new GoogleStrategy({
+<<<<<<< HEAD
     returnURL: process.env.FULL_URL+'/auth/google/return',
     realm: process.env.FULL_URL+'/'
+=======
+    clientID: '51436788764-oqqf3oft8vn40l156nfpjt1btk1p1qu0.apps.googleusercontent.com',
+    clientSecret: 'mDTK6iO-k-imNsOH6kbmlV9y',
+    callbackURL: process.env.FULL_URL+'/auth/google/return'
+>>>>>>> 11e653b2d87d45e7c2b146e43ba6e6cb11c725c7
   },
-  function(identifier, profile, done) {
+  function(accessToken, refreshToken, profile, done) {
     // asynchronous verification, for effect...
     process.nextTick(function () {
+      console.log(profile);
       models.UserModel.findOne({'email':profile.emails[0].value},'-movies',function(err, user){
         if(user){
           return done(null,user)
@@ -76,7 +87,7 @@ app.get('/collection_stats', ensureAuthenticated, function(req, res){
 });
 
 app.get('/auth/google', 
-  passport.authenticate('google', { failureRedirect: '/login' }),
+  passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login'], failureRedirect: '/login' }),
   function(req, res) {
     res.redirect('/');
   });
@@ -247,6 +258,7 @@ app.post('/movies/delete', ensureAuthenticated, function(req, res){
     });
 });
 
+<<<<<<< HEAD
 // Test code for instagram idea.
 // When this is called, that means a new image has been uploaded.
 // Fetch the new image and make the URL available for query.
@@ -274,6 +286,8 @@ app.get('/pi/frame_clear', function(req, res){
     return res.send(JSON.stringify({response:"Success"}));
 });
 
+=======
+>>>>>>> 11e653b2d87d45e7c2b146e43ba6e6cb11c725c7
 // Calls for collection statistics.
 
 // Get the count of each genre.
