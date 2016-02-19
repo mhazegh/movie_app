@@ -24,7 +24,7 @@ mongoose.connect('mongodb://'+process.env.MONGO_URL+'/movie_db/');
 // Use the GoogleStrategy within Passport.
 passport.use(new GoogleStrategy({
     clientID: '51436788764-oqqf3oft8vn40l156nfpjt1btk1p1qu0.apps.googleusercontent.com',
-    clientSecret: 'mDTK6iO-k-imNsOH6kbmlV9y',
+    clientSecret: 'HNytuXsKYhTo_WoDKBkR4VJs',
     callbackURL: process.env.FULL_URL+'/auth/google/return'
   },
   function(accessToken, refreshToken, profile, done) {
